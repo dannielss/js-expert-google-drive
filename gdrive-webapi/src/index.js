@@ -10,9 +10,11 @@ const localHostSSL = {
 }
 
 const server = https.createServer(
-  localHostSSL, (req, res) => {
-  res.end('Hello world')
-})
+  localHostSSL, 
+  (req, res) => {
+    res.end('Hello world')
+  }
+)
 
 const startServer = () => {
   const { address, port } = server.address() 
