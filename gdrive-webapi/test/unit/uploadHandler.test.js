@@ -120,58 +120,58 @@ describe('#UploadHandler test suite', () => {
       })
 
 			test('given message timerDelay as 2secs it should emit only two message during 3 seconds period', async () => {
-				jest.spyOn(ioObj, ioObj.emit.name)
+					jest.spyOn(ioObj, ioObj.emit.name)
 
-				const day = '2021-07-01 01:01'
-				const twoSecondsPeriod = 2000
-				
-				// Date.now do this.lastMessageSent em handleBytes
-				const onFirstLastMessageSent = TestUtil.getTimeFromDate(`${day}:00`)
+					const day = '2021-07-01 01:01'
+					const twoSecondsPeriod = 2000
+					
+					// Date.now do this.lastMessageSent em handleBytes
+					const onFirstLastMessageSent = TestUtil.getTimeFromDate(`${day}:00`)
 
-				// -> hello chegou
-				const onFirstCanExecute = TestUtil.getTimeFromDate(`${day}:02`)
-				const onSecondUpdateLastMessageSent = onFirstCanExecute
+					// -> hello chegou
+					const onFirstCanExecute = TestUtil.getTimeFromDate(`${day}:02`)
+					const onSecondUpdateLastMessageSent = onFirstCanExecute
 
-				// -> segundo hello, está fora da janela de tempo!
-				const onSecondCanExecute = TestUtil.getTimeFromDate(`${day}:03`)
+					// -> segundo hello, está fora da janela de tempo!
+					const onSecondCanExecute = TestUtil.getTimeFromDate(`${day}:03`)
 
-				// -> world
-				const onThirdCanExecute = TestUtil.getTimeFromDate(`${day}:04`)
+					// -> world
+					const onThirdCanExecute = TestUtil.getTimeFromDate(`${day}:04`)
 
-				
-				TestUtil.mockDateNow(
-						[
-								onFirstLastMessageSent,
-								onFirstCanExecute,
-								onSecondUpdateLastMessageSent,
-								onSecondCanExecute,
-								onThirdCanExecute,
-						]
-				)
+					
+					TestUtil.mockDateNow(
+									[
+													onFirstLastMessageSent,
+													onFirstCanExecute,
+													onSecondUpdateLastMessageSent,
+													onSecondCanExecute,
+													onThirdCanExecute,
+									]
+					)
 
-				const messages = ["hello", "hello", "world"]
-				const filename = 'filename.avi'
-				const expectedMessageSent = 2
+					const messages = ["hello", "hello", "world"]
+					const filename = 'filename.avi'
+					const expectedMessageSent = 2
 
-				const source = TestUtil.generateReadableStream(messages)
-				const handler = new UploadHandler({
-						messageTimeDelay: twoSecondsPeriod,
-						io: ioObj,
-						socketId: '01',
-				})
+					const source = TestUtil.generateReadableStream(messages)
+					const handler = new UploadHandler({
+									messageTimeDelay: twoSecondsPeriod,
+									io: ioObj,
+									socketId: '01',
+					})
 
-				await pipeline(
-						source,
-						handler.handleFileBytes(filename)
-				)
+					await pipeline(
+									source,
+									handler.handleFileBytes(filename)
+					)
 
 
-				expect(ioObj.emit).toHaveBeenCalledTimes(expectedMessageSent)
+					expect(ioObj.emit).toHaveBeenCalledTimes(expectedMessageSent)
 
-				const [firstCallResult, secondCallResult] = ioObj.emit.mock.calls
-				
-				expect(firstCallResult).toEqual([handler.ON_UPLOAD_EVENT, { processedAlready: "hello".length, filename }])
-				expect(secondCallResult).toEqual([handler.ON_UPLOAD_EVENT, { processedAlready: messages.join("").length, filename }])
+					const [firstCallResult, secondCallResult] = ioObj.emit.mock.calls
+					
+					expect(firstCallResult).toEqual([handler.ON_UPLOAD_EVENT, { processedAlready: "hello".length, filename }])
+					expect(secondCallResult).toEqual([handler.ON_UPLOAD_EVENT, { processedAlready: messages.join("").length, filename }])
 			})
   })
 
